@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background-color: #1F6357;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .navbar h1 {
+            font-family: 'Song Myung';
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .navbar form {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+            background-image: url('{% static "search.png" %}');
+            background-size: 20px;
+            background-position: 10px 50%;
+            background-repeat: no-repeat;
+            padding-left: 40px;
+            color: #333;
+        }
+
+        .navbar input[type="submit"] {
+            padding: 8px 12px;
+            cursor: pointer;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .search-terms {
+            margin-bottom: 20px;
+        }
+
+        .term {
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .term h3 {
+            margin-bottom: 5px;
+        }
+
+        .term p {
+            margin: 5px 0;
+        }
+
+        .slick-prev,
+        .slick-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 9999;
+            cursor: pointer;
+            background: #ccc;
+            border: none;
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 50%;
+            font-size: 20px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .slick-prev:hover,
+        .slick-next:hover {
+            opacity: 1;
+        }
+
+        .slick-prev {
+            left: 0;
+        }
+
+        .slick-next {
+            right: 0;
+        }
+
+        .card {
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            margin: 5px 0;
+        }
+
+        .card a {
+            color: #4285f4;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <a href="{%url 'home'%}">
+            <h1>Web Service Discovery</h1>
+        </a>
+        {% if fetch_results_time %}
+    <p>Time taken to fetch results: {{ fetch_results_time|floatformat:"2" }} seconds</p>
+        {% endif %}
+        <form action="{% url 'results' %}" method="get">
+            <input type="text" id="search" name="query" placeholder="Search...">
+            <input type="submit" value="Search">
+        </form>
+    </div>
+
+    <div class="container">
+        <h1>Unranked Search Terms</h1>
+        <div class="search-terms">
+            {% for term in search_terms %}
+            <div class="term">
+                <p>
+                    <strong>Original Search Term:</strong>{{ term.Term }}
+                </p>
+                <p><strong>Processed Term:</strong> {{ term.ProcessedTerm }}</p>
+                <p><strong>Original Synonyms:</strong> {{ term.Synonyms }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        <h1>Ranked Search Terms</h1>
+        <div class="search-terms">
+            {% for term in ranked_search_terms %}
+            <div class="term">
+                <p>
+                    <strong>Original Search Term:</strong>{{ term.Term }}
+                </p>
+                <p><strong>Processed Term:</strong> {{ term.ProcessedTerm }}</p>
+                <p><strong>Ranked Synonyms:</strong> {{ term.Synonyms }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        <h1>Results:</h1>
+        <div class="carousel">
+            {% for result in results %}
+            <div class="card">
+                <h2>{{ result.Name }}</h2>
+                <p>{{ result.Description }}</p>
+                <a href="{% url 'result_detail' %}?url={{ result.Link }}">View Details</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.search-terms').slick({
+                infinite: true,
+                slidesToShow: 3,
+                slidesToScroll: 1,
+                dots: true,
+                arrows: true,
+                prevArrow: '<button type="button" class="slick-prev">&#10094;</button>',
+                nextArrow: '<button type="button" class="slick-next">&#10095;</button>',
+                responsive: [
+                    {
+                        breakpoint: 768,
+                        settings: {
+                            slidesToShow: 2
+                        }
+                    },
+                    {
+                        breakpoint: 480,
+                        settings: {
+                            slidesToShow: 1
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+</body>
+
+</html>

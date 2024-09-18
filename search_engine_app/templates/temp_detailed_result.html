@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+{%load static%}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result Detail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background-color: #1F6357;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .navbar h1 {
+            font-family: 'Song Myung';
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .preview-container {
+            margin-top: 20px;
+            overflow: hidden;
+            border: 2px solid #ccc;
+            /* Border style */
+            border-radius: 10px;
+            /* Border radius for rounded corners */
+        }
+
+        .preview-container iframe {
+            width: 100%;
+            height: 500px;
+            /* Adjust height as needed */
+            border: none;
+        }
+
+        .detail-info {
+            margin-top: 20px;
+        }
+
+        .detail-info p {
+            margin-bottom: 10px;
+        }
+
+        .detail-info p:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-info p a {
+            color: #4285f4;
+            text-decoration: none;
+        }
+
+        .additional-info {
+            margin-top: 20px;
+        }
+
+        .additional-info p {
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .additional-info p:last-child {
+            margin-bottom: 0;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 120px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-text img {
+            width: 20px;
+            /* Adjust size of the favicon */
+            height: 20px;
+            /* Adjust size of the favicon */
+            display: block;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <a href="{% url 'home' %}">
+            <h1>Web Service Discovery</h1>
+        </a>
+    </div>
+
+    <div class="container">
+        <h1>{{detailed_result.name}} Service Details</h1>
+        <div class="preview-container">
+            <!-- Here, we load the preview of the link in an iframe -->
+            <iframe src="{{ detailed_result.link }}" frameborder="0" allowfullscreen></iframe>
+        </div>
+
+        <div class="detail-info">
+            <p><strong>Name:</strong> {{ detailed_result.name }}</p>
+            <p><strong>Category:</strong> {{ detailed_result.category }}</p>
+            <p><strong>Description:</strong> {{ detailed_result.description }}</p>
+            <p><strong>Link:</strong> <a href="{{ detailed_result.link }}">{{ detailed_result.link }}</a></p>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="additional-info">
+            <p>
+                <span class="tooltip">
+                    <img src="{% static 'icons8-info-squared-16.png' %}" alt="Info" />
+                    <strong>Auth:</strong>
+                    <span class="tooltip-text">Authorization mechanism.</span>
+                </span> {{ detailed_result.Auth }}
+            </p>
+            <p>
+                <span class="tooltip">
+                    <img src="{% static 'icons8-info-squared-16.png' %}" alt="Info" />
+                    <strong>HTTPS:</strong>
+                    <span class="tooltip-text">Is HTTPS supported?</span>
+                </span> {{ detailed_result.HTTPS }}
+            </p>
+            <p>
+                <span class="tooltip">
+                    <img src="{% static 'icons8-info-squared-16.png' %}" alt="Info" />
+                    <strong>CORS:</strong>
+                    <span class="tooltip-text">Cross-Origin Resource Sharing.</span>
+                </span> {{ detailed_result.CORS }}
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>
